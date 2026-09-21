@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1, h2, h3 {
+    font-family: theme('fontFamily.display');
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.ember.500');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-ember-500 px-5 py-2.5 font-semibold text-ink-950 transition-colors hover:bg-ember-600 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-mist/30 px-5 py-2.5 font-medium text-parchment transition-colors hover:border-mist/60 disabled:opacity-50;
+  }
+  .card {
+    @apply rounded-lg border border-mist/10 bg-ink-800 p-6;
+  }
+  .input {
+    @apply w-full rounded-md border border-mist/20 bg-ink-900 px-3 py-2 text-parchment placeholder:text-mist/50 focus:border-ember-500 focus:outline-none;
+  }
+  .label {
+    @apply mb-1 block text-sm text-mist;
+  }
+}
