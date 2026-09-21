@@ -36,7 +36,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const original = error.config;
-    if (error.response?.status === 401 && original && !(original as any)._retried) {
+    // Don't intercept 401s from the refresh endpoint itself, or we'll deadlock!
+    if (
+      error.response?.status === 401 &&
+      original &&
+      original.url !== '/auth/refresh' &&
+      !(original as any)._retried
+    ) {
       (original as any)._retried = true;
       try {
         if (!refreshPromise) {
