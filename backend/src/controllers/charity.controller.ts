@@ -58,3 +58,20 @@ export const deleteCharity = asyncHandler(async (req: Request, res: Response) =>
   await charityService.deleteCharity(req.params.id);
   res.status(204).send();
 });
+
+import * as donationService from '../services/donation.service';
+
+export const createDonationSchema = z.object({
+  params: z.object({ id: z.string().min(1) }),
+  body: z.object({
+    amount: z.number().min(1).max(100000), // Max $100,000 donation
+  }),
+});
+
+export const createDonation = asyncHandler(async (req: Request, res: Response) => {
+  // Use optionalAuth middleware in routes, so req.user might be undefined
+  const userId = req.user?.id;
+  const { amount } = req.body;
+  const { checkoutUrl } = await donationService.createDonationSession(req.params.id, amount, userId);
+  res.json({ checkoutUrl });
+});

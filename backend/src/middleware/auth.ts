@@ -35,6 +35,23 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   }
 }
 
+export function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = header.slice('Bearer '.length);
+
+  try {
+    const payload = verifyAccessToken(token);
+    req.user = { id: payload.sub, role: payload.role };
+  } catch (err) {
+    // Ignore invalid tokens for optional auth
+  }
+  next();
+}
+
 export function requireRole(...roles: Role[]) {
   return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) return next(AppError.unauthorized());

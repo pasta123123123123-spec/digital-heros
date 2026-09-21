@@ -1,10 +1,36 @@
-import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../api/client';
+import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { api, apiErrorMessage } from '../api/client';
 import { Charity } from '../types';
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 export function CharityProfile() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [customAmount, setCustomAmount] = useState('25');
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (searchParams.get('donation') === 'success') {
+      toast.success('Thank you for your generous donation!', { duration: 5000 });
+      searchParams.delete('donation');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  const donateMutation = useMutation({
+    mutationFn: (amount: number) => api.post<{ checkoutUrl: string }>(`/charities/${id}/donate`, { amount }),
+    onSuccess: (res) => {
+      window.location.href = res.data.checkoutUrl;
+    },
+  });
+
+  const handleDonate = () => {
+    const amt = Number(customAmount);
+    if (amt > 0) donateMutation.mutate(amt);
+  };
 
   const { data: charity, isLoading, error } = useQuery({
     queryKey: ['charities', id],
@@ -67,12 +93,66 @@ export function CharityProfile() {
             {charity.description}
           </p>
 
-          <div className="mt-10">
+          <div className="mt-10 flex flex-wrap gap-4 items-center">
             <Link to={`/subscribe?charity=${charity.id}`} className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4 shadow-[0_0_30px_rgba(249,115,22,0.3)] hover:shadow-[0_0_40px_rgba(249,115,22,0.5)] transition-all">
-              Support this cause
+              Support via Subscription
               <span>&rarr;</span>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Independent Donation Widget */}
+      <section className="mx-auto max-w-4xl px-6 -mt-8 relative z-10">
+        <div className="card bg-ink-900/90 backdrop-blur-xl border border-mist/10 shadow-2xl p-8 rounded-2xl">
+          <h2 className="font-display text-2xl mb-2 text-parchment">Make a One-Time Donation</h2>
+          <p className="text-mist mb-6">100% of independent donations go directly to {charity.name}.</p>
+          
+          <div className="flex flex-wrap gap-4 items-center">
+            {user ? (
+              <>
+                {[10, 25, 50].map(amt => (
+                  <button 
+                    key={amt}
+                    onClick={() => setCustomAmount(amt.toString())}
+                    className={`px-6 py-3 rounded-lg font-semibold transition-all ${customAmount === amt.toString() ? 'bg-ember-500 text-ink-950 ring-2 ring-ember-500 shadow-[0_0_15px_rgba(249,115,22,0.3)]' : 'bg-mist/5 text-mist hover:bg-mist/10 ring-1 ring-mist/20'}`}
+                  >
+                    ${amt}
+                  </button>
+                ))}
+                
+                <div className="relative flex-1 min-w-[150px]">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-mist font-medium">$</span>
+                  <input 
+                    type="number"
+                    min="1"
+                    placeholder="Custom Amount"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    className="w-full bg-ink-950/50 border border-mist/20 rounded-lg py-3 pl-8 pr-4 text-parchment focus:border-ember-500 focus:ring-1 focus:ring-ember-500 outline-none transition-all"
+                  />
+                </div>
+                
+                <button 
+                  onClick={handleDonate}
+                  disabled={donateMutation.isPending || !Number(customAmount) || Number(customAmount) < 1}
+                  className="btn-primary py-3 px-8 text-base shadow-[0_0_15px_rgba(249,115,22,0.2)] disabled:opacity-50"
+                >
+                  {donateMutation.isPending ? 'Processing...' : 'Donate Now'}
+                </button>
+              </>
+            ) : (
+              <div className="w-full bg-mist/5 border border-mist/10 rounded-lg p-6 text-center">
+                <p className="text-mist mb-4">Please log in to make a one-time donation.</p>
+                <Link to={`/login?next=/charities/${charity.id}`} className="btn-secondary px-6 py-2">
+                  Log in
+                </Link>
+              </div>
+            )}
+          </div>
+          {donateMutation.isError && (
+            <p className="text-red-400 mt-4 text-sm">{apiErrorMessage(donateMutation.error, 'Failed to initiate donation')}</p>
+          )}
         </div>
       </section>
 

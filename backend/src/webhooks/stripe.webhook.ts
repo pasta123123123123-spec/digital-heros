@@ -9,6 +9,7 @@ import {
   handleSubscriptionDeleted,
   handleSubscriptionUpdated,
 } from '../services/subscription.service';
+import { handleDonationCompleted } from '../services/donation.service';
 
 /**
  * This is the ONLY place subscription.status is ever written to as "ACTIVE".
@@ -37,7 +38,12 @@ export async function stripeWebhookHandler(req: Request, res: Response) {
   try {
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (session.metadata?.type === 'DONATION') {
+          await handleDonationCompleted(session);
+        } else {
+          await handleCheckoutCompleted(session);
+        }
         break;
       case 'invoice.paid':
         await handleInvoicePaid(event.data.object as Stripe.Invoice);

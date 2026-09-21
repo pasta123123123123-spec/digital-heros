@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { optionalAuth, requireAuth, requireRole } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import * as charityController from '../controllers/charity.controller';
 
@@ -9,6 +9,14 @@ const router = Router();
 router.get('/', charityController.listCharities);
 router.get('/featured', charityController.getFeaturedCharity);
 router.get('/:id', charityController.getCharity);
+
+// Registered Users Only - one-time donations
+router.post(
+  '/:id/donate',
+  requireAuth,
+  validate(charityController.createDonationSchema),
+  charityController.createDonation
+);
 
 // Admin-only management
 router.post(

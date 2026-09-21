@@ -72,6 +72,7 @@ model User {
   winnerClaims  WinnerClaim[]     @relation("ClaimOwner")
   reviewedClaims WinnerClaim[]    @relation("ClaimReviewer")
   refreshTokens RefreshToken[]
+  donations     Donation[]
 
   @@index([email])
 }
@@ -104,6 +105,7 @@ model Charity {
 
   subscriptions Subscription[]
   events        CharityEvent[]
+  donations     Donation[]
 }
 
 model CharityEvent {
@@ -243,4 +245,28 @@ model WinnerClaim {
 
   @@index([drawResultId])
   @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────
+// INDEPENDENT DONATION MODELS
+// ─────────────────────────────────────────────────────────────
+
+enum DonationStatus {
+  PENDING
+  PAID
+}
+
+model Donation {
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  charityId       String
+  charity         Charity  @relation(fields: [charityId], references: [id], onDelete: Cascade)
+  amount          Decimal  @db.Decimal(12, 2)
+  stripeSessionId String?  @unique
+  status          DonationStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([charityId])
 }

@@ -77,12 +77,16 @@ async function main() {
     },
   ];
 
-  // Charity.name has no unique constraint (two orgs could share a display
-  // name in production), so seeding uses check-then-create for idempotency
-  // instead of `upsert`.
   for (const c of charities) {
     const existing = await prisma.charity.findFirst({ where: { name: c.name } });
-    if (!existing) await prisma.charity.create({ data: c });
+    if (existing) {
+      // Extract events to prevent duplicate event creation on update, 
+      // or just update scalar fields.
+      const { events, ...charityData } = c;
+      await prisma.charity.update({ where: { id: existing.id }, data: charityData });
+    } else {
+      await prisma.charity.create({ data: c });
+    }
   }
 
   // eslint-disable-next-line no-console
