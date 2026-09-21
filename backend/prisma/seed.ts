@@ -34,10 +34,11 @@ async function main() {
       description: 'Funds junior golf coaching and equipment access in underserved communities.',
       isFeatured: true,
       categories: ['Youth', 'Community'],
-      imageUrl: 'https://images.unsplash.com/photo-1593111774240-d529f12fc416?q=80&w=2070&auto=format&fit=crop',
+      imageUrl: 'https://picsum.photos/seed/fairway1/1200/800',
       imageUrls: [
-        'https://images.unsplash.com/photo-1535136154160-5f21226068cd?q=80&w=2070&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=2070&auto=format&fit=crop',
+        'https://picsum.photos/seed/fairway2/800/800',
+        'https://picsum.photos/seed/fairway3/800/800',
+        'https://picsum.photos/seed/fairway4/800/800',
       ],
       events: {
         create: [
@@ -45,7 +46,7 @@ async function main() {
             title: 'Annual Youth Golf Clinic',
             description: 'A free 3-day clinic for under-16s with professional coaching.',
             date: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-            imageUrl: 'https://images.unsplash.com/photo-1593111774240-d529f12fc416?q=80&w=2070&auto=format&fit=crop',
+            imageUrl: 'https://picsum.photos/seed/clinic/1200/800',
           }
         ]
       }
@@ -55,22 +56,29 @@ async function main() {
       description: 'Restores public course land into community green spaces after closures.',
       isFeatured: false,
       categories: ['Environment', 'Community'],
-      imageUrl: 'https://images.unsplash.com/photo-1535136154160-5f21226068cd?q=80&w=2070&auto=format&fit=crop',
-      imageUrls: [],
+      imageUrl: 'https://picsum.photos/seed/green1/1200/800',
+      imageUrls: [
+        'https://picsum.photos/seed/green2/800/800',
+        'https://picsum.photos/seed/green3/800/800',
+      ],
     },
     {
       name: "Caddie's Promise",
       description: 'Provides scholarships to caddies pursuing higher education.',
       isFeatured: false,
       categories: ['Youth', 'Education'],
-      imageUrl: 'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?q=80&w=2070&auto=format&fit=crop',
-      imageUrls: [],
+      imageUrl: 'https://picsum.photos/seed/caddie1/1200/800',
+      imageUrls: [
+        'https://picsum.photos/seed/caddie2/800/800',
+        'https://picsum.photos/seed/caddie3/800/800',
+      ],
       events: {
         create: [
           {
             title: 'Charity Scramble Tournament',
             description: '4-person scramble to raise funds for the Fall 2027 scholarship class.',
             date: new Date(new Date().setMonth(new Date().getMonth() + 2)),
+            imageUrl: 'https://picsum.photos/seed/scramble/1200/800',
           }
         ]
       }
