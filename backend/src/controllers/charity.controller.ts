@@ -7,7 +7,9 @@ export const createCharitySchema = z.object({
   body: z.object({
     name: z.string().min(1).max(200),
     description: z.string().min(1).max(5000),
+    categories: z.array(z.string()).optional(),
     imageUrl: z.string().url().optional(),
+    imageUrls: z.array(z.string().url()).optional(),
     isFeatured: z.boolean().optional(),
   }),
 });
@@ -17,7 +19,9 @@ export const updateCharitySchema = z.object({
   body: z.object({
     name: z.string().min(1).max(200).optional(),
     description: z.string().min(1).max(5000).optional(),
+    categories: z.array(z.string()).optional(),
     imageUrl: z.string().url().optional(),
+    imageUrls: z.array(z.string().url()).optional(),
     isFeatured: z.boolean().optional(),
     isActive: z.boolean().optional(),
   }),
@@ -25,7 +29,8 @@ export const updateCharitySchema = z.object({
 
 export const listCharities = asyncHandler(async (req: Request, res: Response) => {
   const search = typeof req.query.search === 'string' ? req.query.search : undefined;
-  const charities = await charityService.listCharities(search);
+  const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+  const charities = await charityService.listCharities(search, category);
   res.json({ charities });
 });
 

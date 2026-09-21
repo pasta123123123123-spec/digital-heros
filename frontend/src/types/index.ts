@@ -7,12 +7,24 @@ export interface User {
   role: Role;
 }
 
+export interface CharityEvent {
+  id: string;
+  charityId: string;
+  title: string;
+  description: string | null;
+  date: string;
+  imageUrl: string | null;
+}
+
 export interface Charity {
   id: string;
   name: string;
   description: string;
+  categories: string[];
   imageUrl?: string | null;
+  imageUrls: string[];
   isFeatured: boolean;
+  events?: CharityEvent[];
 }
 
 export type SubscriptionStatus = 'INCOMPLETE' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'LAPSED';

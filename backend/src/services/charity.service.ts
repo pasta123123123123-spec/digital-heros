@@ -1,13 +1,14 @@
 import { prisma } from '../config/prisma';
 import { AppError } from '../utils/AppError';
 
-export async function listCharities(search?: string) {
+export async function listCharities(search?: string, category?: string) {
   return prisma.charity.findMany({
     where: {
       isActive: true,
       ...(search
         ? { name: { contains: search, mode: 'insensitive' as const } }
         : {}),
+      ...(category ? { categories: { has: category } } : {}),
     },
     orderBy: [{ isFeatured: 'desc' }, { name: 'asc' }],
   });
@@ -21,7 +22,10 @@ export async function getFeaturedCharity() {
 }
 
 export async function getCharity(id: string) {
-  const charity = await prisma.charity.findUnique({ where: { id } });
+  const charity = await prisma.charity.findUnique({
+    where: { id },
+    include: { events: { orderBy: { date: 'asc' } } },
+  });
   if (!charity) throw AppError.notFound('Charity not found');
   return charity;
 }
@@ -29,7 +33,9 @@ export async function getCharity(id: string) {
 export async function createCharity(data: {
   name: string;
   description: string;
+  categories?: string[];
   imageUrl?: string;
+  imageUrls?: string[];
   isFeatured?: boolean;
 }) {
   return prisma.charity.create({ data });
@@ -37,7 +43,15 @@ export async function createCharity(data: {
 
 export async function updateCharity(
   id: string,
-  data: Partial<{ name: string; description: string; imageUrl: string; isFeatured: boolean; isActive: boolean }>
+  data: Partial<{
+    name: string;
+    description: string;
+    categories: string[];
+    imageUrl: string;
+    imageUrls: string[];
+    isFeatured: boolean;
+    isActive: boolean;
+  }>
 ) {
   await getCharity(id);
   return prisma.charity.update({ where: { id }, data });

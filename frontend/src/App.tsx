@@ -5,6 +5,7 @@ import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { CharityDirectory } from './pages/CharityDirectory';
+import { CharityProfile } from './pages/CharityProfile';
 import { Subscribe } from './pages/Subscribe';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -21,6 +22,7 @@ export function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/charities" element={<CharityDirectory />} />
+        <Route path="/charities/:id" element={<CharityProfile />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/subscribe" element={<Subscribe />} />

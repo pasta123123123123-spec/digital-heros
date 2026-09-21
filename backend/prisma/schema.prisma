@@ -94,13 +94,30 @@ model Charity {
   id          String   @id @default(cuid())
   name        String
   description String
-  imageUrl    String?
+  categories  String[] // E.g., "Youth", "Medical", "Environment", "Community"
+  imageUrl    String? // Primary display image
+  imageUrls   String[] // Gallery images
   isFeatured  Boolean  @default(false)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   subscriptions Subscription[]
+  events        CharityEvent[]
+}
+
+model CharityEvent {
+  id          String   @id @default(cuid())
+  charityId   String
+  charity     Charity  @relation(fields: [charityId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  date        DateTime
+  imageUrl    String?
+
+  createdAt   DateTime @default(now())
+
+  @@index([charityId])
 }
 
 model Subscription {
