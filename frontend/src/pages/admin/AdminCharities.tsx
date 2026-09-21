@@ -9,16 +9,29 @@ export function AdminCharities() {
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  const [categories, setCategories] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrls, setImageUrls] = useState('');
+
   const { data: charities } = useQuery({
     queryKey: ['charities'],
     queryFn: async () => (await api.get<{ charities: Charity[] }>('/charities')).data.charities,
   });
 
   const create = useMutation({
-    mutationFn: () => api.post('/charities', { name, description }),
+    mutationFn: () => api.post('/charities', { 
+      name, 
+      description,
+      categories: categories.split(',').map(s => s.trim()).filter(Boolean),
+      imageUrl: imageUrl.trim() || undefined,
+      imageUrls: imageUrls.split(',').map(s => s.trim()).filter(Boolean)
+    }),
     onSuccess: () => {
       setName('');
       setDescription('');
+      setCategories('');
+      setImageUrl('');
+      setImageUrls('');
       setError(null);
       queryClient.invalidateQueries({ queryKey: ['charities'] });
     },
@@ -63,6 +76,18 @@ export function AdminCharities() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
+          </div>
+          <div>
+            <label className="label" htmlFor="c-cat">Categories (comma-separated)</label>
+            <input id="c-cat" className="input" placeholder="e.g. Youth, Education" value={categories} onChange={(e) => setCategories(e.target.value)} />
+          </div>
+          <div>
+            <label className="label" htmlFor="c-img">Primary Image URL</label>
+            <input id="c-img" type="url" className="input" placeholder="https://..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+          </div>
+          <div>
+            <label className="label" htmlFor="c-imgs">Gallery Image URLs (comma-separated)</label>
+            <input id="c-imgs" className="input" placeholder="https://..., https://..." value={imageUrls} onChange={(e) => setImageUrls(e.target.value)} />
           </div>
           {error && <p className="text-sm text-red-400">{error}</p>}
           <button type="submit" disabled={create.isPending} className="btn-primary">
