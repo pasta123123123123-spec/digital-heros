@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { optionalAuth, requireAuth, requireRole } from '../middleware/auth';
+import { requireAuth, requireRole } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import * as charityController from '../controllers/charity.controller';
 
