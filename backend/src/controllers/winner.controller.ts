@@ -21,7 +21,9 @@ export const submitProof = asyncHandler(async (req: Request, res: Response) => {
   if (!req.file) throw AppError.badRequest('A proof screenshot file is required');
   
   let proofUrl: string;
-  if (process.env.VERCEL) {
+  const isVercel = !!process.env.VERCEL || !!process.env.AWS_REGION;
+  
+  if (isVercel) {
     // Vercel Serverless: use the memory buffer Base64
     const b64 = req.file.buffer.toString('base64');
     const mime = req.file.mimetype;

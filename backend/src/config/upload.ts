@@ -5,14 +5,18 @@ import crypto from 'crypto';
 import { env } from './env';
 import { AppError } from '../utils/AppError';
 
-// Vercel sets this environment variable automatically
-const isVercel = !!process.env.VERCEL;
+// Detect serverless environments (Vercel/AWS)
+let isVercel = !!process.env.VERCEL || !!process.env.AWS_REGION;
 
 let uploadDir = '';
 if (!isVercel) {
-  // Only create the directory if we are running locally (not on Vercel)
-  uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR, 'winner-proofs');
-  fs.mkdirSync(uploadDir, { recursive: true });
+  try {
+    uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR, 'winner-proofs');
+    fs.mkdirSync(uploadDir, { recursive: true });
+  } catch (error) {
+    // If the filesystem is read-only (which happens on Vercel), fall back to memory
+    isVercel = true;
+  }
 }
 
 // Vercel Serverless Functions have a read-only filesystem.
