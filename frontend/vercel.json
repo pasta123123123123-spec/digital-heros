@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "https://YOUR_BACKEND_URL/api/:match*"
+      "destination": "https://digital-heros-ji89b8yhf-pasta10.vercel.app/api/:match*"
     },
     {
       "source": "/(.*)",
