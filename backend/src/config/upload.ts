@@ -5,19 +5,31 @@ import crypto from 'crypto';
 import { env } from './env';
 import { AppError } from '../utils/AppError';
 
-const uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR, 'winner-proofs');
-fs.mkdirSync(uploadDir, { recursive: true });
+// Vercel sets this environment variable automatically
+const isVercel = !!process.env.VERCEL;
+
+let uploadDir = '';
+if (!isVercel) {
+  // Only create the directory if we are running locally (not on Vercel)
+  uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR, 'winner-proofs');
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Vercel Serverless Functions have a read-only filesystem.
+// Instead of diskStorage, we use memoryStorage and will convert the file
+// to a Base64 string in the controller to store directly in the database.
+const storage = isVercel
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (_req, _file, cb) => cb(null, uploadDir),
+      filename: (_req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${crypto.randomUUID()}${ext}`);
+      },
+    });
 
 const ALLOWED_MIME = ['image/png', 'image/jpeg', 'image/webp'];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${crypto.randomUUID()}${ext}`);
-  },
-});
 
 export const uploadProofImage = multer({
   storage,

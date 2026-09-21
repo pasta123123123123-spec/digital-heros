@@ -19,7 +19,18 @@ export const listMyClaims = asyncHandler(async (req: Request, res: Response) => 
 
 export const submitProof = asyncHandler(async (req: Request, res: Response) => {
   if (!req.file) throw AppError.badRequest('A proof screenshot file is required');
-  const proofUrl = `/uploads/winner-proofs/${req.file.filename}`;
+  
+  let proofUrl: string;
+  if (process.env.VERCEL) {
+    // Vercel Serverless: use the memory buffer Base64
+    const b64 = req.file.buffer.toString('base64');
+    const mime = req.file.mimetype;
+    proofUrl = `data:${mime};base64,${b64}`;
+  } else {
+    // Local development: use the local disk URL
+    proofUrl = `/uploads/winner-proofs/${req.file.filename}`;
+  }
+  
   const claim = await winnerService.submitProof(req.user!.id, req.params.id, proofUrl);
   res.json({ claim });
 });
