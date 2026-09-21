@@ -1,7 +1,7 @@
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { api, apiErrorMessage } from '../api/client';
-import { Charity } from '../types';
+import { Charity, Subscription } from '../types';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -35,6 +35,12 @@ export function CharityProfile() {
   const { data: charity, isLoading, error } = useQuery({
     queryKey: ['charities', id],
     queryFn: async () => (await api.get<{ charity: Charity }>(`/charities/${id}`)).data.charity,
+  });
+
+  const { data: subscription } = useQuery({
+    queryKey: ['my-subscription'],
+    queryFn: async () => (await api.get<{ subscription: Subscription | null }>('/subscriptions/me')).data.subscription,
+    enabled: !!user,
   });
 
   if (isLoading) {
@@ -94,10 +100,21 @@ export function CharityProfile() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4 items-center">
-            <Link to={`/subscribe?charity=${charity.id}`} className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4 shadow-[0_0_30px_rgba(249,115,22,0.3)] hover:shadow-[0_0_40px_rgba(249,115,22,0.5)] transition-all">
-              Support via Subscription
-              <span>&rarr;</span>
-            </Link>
+            {subscription === undefined && user ? null : !subscription ? (
+              <Link to={`/subscribe?charity=${charity.id}`} className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4 shadow-[0_0_30px_rgba(249,115,22,0.3)] hover:shadow-[0_0_40px_rgba(249,115,22,0.5)] transition-all">
+                Support via Subscription
+                <span>&rarr;</span>
+              </Link>
+            ) : subscription.charityId === charity.id ? (
+              <div className="px-6 py-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                ✓ You are actively supporting this cause through your subscription
+              </div>
+            ) : (
+              <Link to="/dashboard" className="btn-secondary inline-flex items-center gap-2 text-lg px-8 py-4">
+                Switch your subscription here in Dashboard
+                <span>&rarr;</span>
+              </Link>
+            )}
           </div>
         </div>
       </section>
