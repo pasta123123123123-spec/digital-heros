@@ -22,7 +22,7 @@ export async function signup(email: string, password: string, name: string) {
     data: { email, passwordHash, name, role: Role.SUBSCRIBER },
   });
 
-  return issueTokenPair(user.id, user.role);
+  return issueTokenPair(user.id, user.role, user.email, user.name);
 }
 
 export async function login(email: string, password: string) {
@@ -34,7 +34,7 @@ export async function login(email: string, password: string) {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) throw AppError.unauthorized('Invalid email or password');
 
-  return issueTokenPair(user.id, user.role);
+  return issueTokenPair(user.id, user.role, user.email, user.name);
 }
 
 export async function refresh(refreshTokenRaw: string) {
@@ -56,7 +56,7 @@ export async function refresh(refreshTokenRaw: string) {
     data: { revokedAt: new Date() },
   });
 
-  return issueTokenPair(stored.user.id, stored.user.role);
+  return issueTokenPair(stored.user.id, stored.user.role, stored.user.email, stored.user.name);
 }
 
 export async function logout(refreshTokenRaw: string) {
@@ -69,8 +69,8 @@ export async function logout(refreshTokenRaw: string) {
     .catch(() => undefined); // logout should never fail loudly on the client
 }
 
-async function issueTokenPair(userId: string, role: Role) {
-  const accessToken = signAccessToken({ sub: userId, role });
+async function issueTokenPair(userId: string, role: Role, email: string, name: string) {
+  const accessToken = signAccessToken({ sub: userId, role, email, name });
   const { token: refreshTokenRaw, tokenHash } = generateRefreshToken();
 
   await prisma.refreshToken.create({

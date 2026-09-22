@@ -7,6 +7,8 @@ import { Role } from '../types';
 interface SessionUser {
   id: string;
   role: Role;
+  email: string;
+  name: string;
 }
 
 interface AuthContextValue {
@@ -43,8 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function applyToken(token: string) {
     setAccessToken(token);
-    const decoded = jwtDecode<{ sub: string; role: Role }>(token);
-    const sessionUser = { id: decoded.sub, role: decoded.role };
+    const decoded = jwtDecode<{ sub: string; role: Role; email: string; name: string; }>(token);
+    const sessionUser = { id: decoded.sub, role: decoded.role, email: decoded.email, name: decoded.name };
     setUser(sessionUser);
     return sessionUser;
   }
