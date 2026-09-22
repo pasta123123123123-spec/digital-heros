@@ -53,3 +53,12 @@ export interface WinnerClaim {
   rejectionReason: string | null;
   submittedAt: string;
 }
+
+export interface Donation {
+  id: string;
+  amount: string;
+  status: 'PENDING' | 'PAID';
+  charityId: string;
+  charity: { name: string };
+  createdAt: string;
+}

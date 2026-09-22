@@ -16,6 +16,7 @@ import charityRoutes from './routes/charity.routes';
 import drawRoutes from './routes/draw.routes';
 import winnerRoutes from './routes/winner.routes';
 import adminRoutes from './routes/admin.routes';
+import donationRoutes from './routes/donation.routes';
 
 export const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/charities', charityRoutes);
 app.use('/api/draws', drawRoutes);
 app.use('/api/winners', winnerRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/donations', donationRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

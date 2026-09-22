@@ -1,17 +1,52 @@
 import { FormEvent, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, apiErrorMessage } from '../api/client';
-import { Score, Subscription, WinnerClaim, Charity } from '../types';
+import { Score, Subscription, WinnerClaim, Charity, Donation } from '../types';
 
 export function Dashboard() {
   return (
     <div className="mx-auto max-w-4xl space-y-10 px-6 py-12">
       <h1 className="font-display text-4xl">Your dashboard</h1>
       <SubscriptionCard />
+      <DonationsCard />
       <ScoresCard />
       <ParticipationCard />
       <WinningsCard />
     </div>
+  );
+}
+
+function DonationsCard() {
+  const { data: donations } = useQuery({
+    queryKey: ['my-donations'],
+    queryFn: async () => (await api.get<{ donations: Donation[] }>('/donations/me')).data.donations,
+  });
+
+  return (
+    <section className="card">
+      <h2 className="font-display text-xl">Independent Donations</h2>
+      <p className="mt-1 text-sm text-mist">
+        Your one-time contributions.
+      </p>
+
+      <ul className="mt-6 divide-y divide-mist/10">
+        {donations?.map((d) => (
+          <li key={d.id} className="py-3 text-sm flex items-center justify-between">
+            <div>
+              <span className="font-semibold block">{d.charity.name}</span>
+              <span className="text-mist text-xs">{new Date(d.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-medium">${d.amount}</span>
+              <span className={`rounded-full px-2 py-0.5 text-xs ${d.status === 'PAID' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}>
+                {d.status}
+              </span>
+            </div>
+          </li>
+        ))}
+        {donations?.length === 0 && <p className="py-3 text-sm text-mist">No independent donations yet.</p>}
+      </ul>
+    </section>
   );
 }
 
